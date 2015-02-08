@@ -156,16 +156,19 @@ Client.prototype.connect = function() {
                     cb(error, null)
                 } else {
                     var r = stdout.match(/rid:+[ 0-9]*/i)
-                    r = (r[0].split(':'))[1].trim()
-                    var s = stdout.match(/sid:+[ a-z+'"-_A-Z+0-9]*/i)
-                    s = (s[0].split(':'))[1]
-                        .replace('\'','')
-                        .replace('\'','')
-                        .trim()
-                    if (r && s) {
-                        return cb(null, { rid: r, sid: s })
+                    try { r = (r[0].split(':'))[1].trim()
+                        var s = stdout.match(/sid:+[ a-z+'"-_A-Z+0-9]*/i)
+                        s = (s[0].split(':'))[1]
+                            .replace('\'','')
+                            .replace('\'','')
+                            .trim()
+                        if (r && s) {
+                            return cb(null, { rid: r, sid: s })
+                        }
+                        cb(stderr)
+                    } catch(e) { // added as a hack to prevent error when account does not exist
+                        cb(true, { rid: r, sid: s })
                     }
-                    cb(stderr)
                 }
             }
         )
